@@ -4,13 +4,25 @@ const http = require('http');
 const cors = require('cors');
 const { Server } = require("socket.io");
 
-app.use(cors());
+// Allow both local and Vercel origins
+const allowedOrigins = ["http://localhost:5173", "https://chatapp-client-pied.vercel.app"];
+
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ["GET", "POST"],
+}));
 
 const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:5173",
+        origin: allowedOrigins,
         methods: ["GET", "POST"],
     }
 });
